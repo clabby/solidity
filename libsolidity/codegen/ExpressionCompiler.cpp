@@ -2656,6 +2656,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 
 	bool returnSuccessConditionAndReturndata = funKind == FunctionType::Kind::BareCall || funKind == FunctionType::Kind::BareDelegateCall || funKind == FunctionType::Kind::BareStaticCall || funKind == FunctionType::Kind::BareAuthCall;
 	bool isDelegateCall = funKind == FunctionType::Kind::BareDelegateCall || funKind == FunctionType::Kind::DelegateCall;
+	bool isAuthCall = funKind == FunctionType::Kind::BareAuthCall;
 	bool useStaticCall = funKind == FunctionType::Kind::BareStaticCall || (_functionType.stateMutability() <= StateMutability::View && m_context.evmVersion().hasStaticCall());
 
 	if (_tryCall)
@@ -2764,7 +2765,12 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		m_context << Instruction::DUP2;
 	}
 
-	// CALL arguments: outSize, outOff, inSize, inOff (already present up to here)
+	// Append `0` to the stack for `AUTHCALL`'s `valueExt`.
+	// The EIP-3074 spec says that the `valueExt` parameter is always supposed to be `0`.
+	if (isAuthCall)
+		m_context << u256(0);
+
+	// CALL arguments: outSize, outOff, inSize, inOff, [valueExt (if AUTHCALL)] (already present up to here)
 	// [value,] addr, gas (stack top)
 	if (isDelegateCall)
 		solAssert(!_functionType.valueSet(), "Value set for delegatecall");
@@ -2816,6 +2822,8 @@ void ExpressionCompiler::appendExternalFunctionCall(
 	// Order is important here, STATICCALL might overlap with DELEGATECALL.
 	if (isDelegateCall)
 		m_context << Instruction::DELEGATECALL;
+	else if (isAuthCall)
+		m_context << Instruction::AUTHCALL;
 	else if (useStaticCall)
 		m_context << Instruction::STATICCALL;
 	else
