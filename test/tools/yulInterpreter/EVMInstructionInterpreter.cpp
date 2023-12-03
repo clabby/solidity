@@ -351,6 +351,13 @@ u256 EVMInstructionInterpreter::eval(
 			(arg[0] > 0) &&
 			(arg[1] == util::h160::Arith(m_state.address) || (arg[1] & 1))
 		) ? 1 : 0;
+	case Instruction::AUTH:
+		accessMemory(arg[1], arg[2]);
+		return 0;
+	case Instruction::AUTHCALL:
+		accessMemory(arg[4], arg[5]);
+		accessMemory(arg[6], arg[7]);
+		return 0;
 	case Instruction::RETURN:
 	{
 		m_state.returndata = {};

@@ -1254,6 +1254,7 @@ public:
 		BareCallCode, ///< CALLCODE without function hash
 		BareDelegateCall, ///< DELEGATECALL without function hash
 		BareStaticCall, ///< STATICCALL without function hash
+		BareAuthCall, ///< AUTHCALL without function hash
 		Creation, ///< external call using CREATE
 		Send, ///< CALL, but without data and gas
 		Transfer, ///< CALL, but without data and throws on error
@@ -1494,6 +1495,7 @@ public:
 		case FunctionType::Kind::BareCallCode:
 		case FunctionType::Kind::BareDelegateCall:
 		case FunctionType::Kind::BareStaticCall:
+		case FunctionType::Kind::BareAuthCall:
 			return true;
 		default:
 			return false;

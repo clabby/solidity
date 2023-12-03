@@ -558,7 +558,8 @@ MemberList::MemberMap AddressType::nativeMembers(ASTNode const*) const
 		{"call", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareCall, StateMutability::Payable)},
 		{"callcode", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareCallCode, StateMutability::Payable)},
 		{"delegatecall", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareDelegateCall, StateMutability::NonPayable)},
-		{"staticcall", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareStaticCall, StateMutability::View)}
+		{"staticcall", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareStaticCall, StateMutability::View)},
+		{"authcall", TypeProvider::function(strings{"bytes memory"}, strings{"bool", "bytes memory"}, FunctionType::Kind::BareAuthCall, StateMutability::Payable)}
 	};
 	if (m_stateMutability == StateMutability::Payable)
 	{
@@ -3006,7 +3007,8 @@ TypePointers FunctionType::returnParameterTypesWithoutDynamicTypes() const
 		m_kind == Kind::BareCall ||
 		m_kind == Kind::BareCallCode ||
 		m_kind == Kind::BareDelegateCall ||
-		m_kind == Kind::BareStaticCall
+		m_kind == Kind::BareStaticCall ||
+		m_kind == Kind::BareAuthCall
 	)
 		for (auto& param: returnParameterTypes)
 		{
@@ -3043,6 +3045,7 @@ std::string FunctionType::richIdentifier() const
 	case Kind::BareCallCode: id += "barecallcode"; break;
 	case Kind::BareDelegateCall: id += "baredelegatecall"; break;
 	case Kind::BareStaticCall: id += "barestaticcall"; break;
+	case Kind::BareAuthCall: id += "bareauthcall"; break;
 	case Kind::Creation: id += "creation"; break;
 	case Kind::Send: id += "send"; break;
 	case Kind::Transfer: id += "transfer"; break;
@@ -3285,6 +3288,7 @@ std::vector<std::tuple<std::string, Type const*>> FunctionType::makeStackItems()
 	case Kind::BareCallCode:
 	case Kind::BareDelegateCall:
 	case Kind::BareStaticCall:
+	case Kind::BareAuthCall:
 	case Kind::Transfer:
 	case Kind::Send:
 		slots = {std::make_tuple("address", TypeProvider::address())};
@@ -3380,6 +3384,7 @@ MemberList::MemberMap FunctionType::nativeMembers(ASTNode const* _scope) const
 	case Kind::BareCallCode:
 	case Kind::BareDelegateCall:
 	case Kind::BareStaticCall:
+	case Kind::BareAuthCall:
 	{
 		MemberList::MemberMap members;
 		if (m_kind == Kind::External)
@@ -3587,6 +3592,7 @@ bool FunctionType::isBareCall() const
 	case Kind::BareCallCode:
 	case Kind::BareDelegateCall:
 	case Kind::BareStaticCall:
+	case Kind::BareAuthCall:
 	case Kind::ECRecover:
 	case Kind::SHA256:
 	case Kind::RIPEMD160:
@@ -3780,6 +3786,7 @@ bool FunctionType::padArguments() const
 	case Kind::BareCallCode:
 	case Kind::BareDelegateCall:
 	case Kind::BareStaticCall:
+	case Kind::BareAuthCall:
 	case Kind::SHA256:
 	case Kind::RIPEMD160:
 	case Kind::KECCAK256:

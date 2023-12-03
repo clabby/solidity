@@ -1040,6 +1040,7 @@ void IRGeneratorForStatements::endVisit(FunctionCall const& _functionCall)
 	case FunctionType::Kind::BareCall:
 	case FunctionType::Kind::BareDelegateCall:
 	case FunctionType::Kind::BareStaticCall:
+	case FunctionType::Kind::BareAuthCall:
 		appendBareCall(_functionCall, arguments);
 		break;
 	case FunctionType::Kind::BareCallCode:
@@ -1803,7 +1804,7 @@ void IRGeneratorForStatements::endVisit(MemberAccess const& _memberAccess)
 			solAssert(dynamic_cast<AddressType const&>(*_memberAccess.expression().annotation().type).stateMutability() == StateMutability::Payable);
 			define(IRVariable{_memberAccess}.part("address"), _memberAccess.expression());
 		}
-		else if (std::set<std::string>{"call", "callcode", "delegatecall", "staticcall"}.count(member))
+		else if (std::set<std::string>{"call", "callcode", "delegatecall", "staticcall", "authcall"}.count(member))
 			define(IRVariable{_memberAccess}.part("address"), _memberAccess.expression());
 		else
 			solAssert(false, "Invalid member access to address");
@@ -2144,6 +2145,7 @@ void IRGeneratorForStatements::endVisit(MemberAccess const& _memberAccess)
 				case FunctionType::Kind::BareCallCode:
 				case FunctionType::Kind::BareDelegateCall:
 				case FunctionType::Kind::BareStaticCall:
+				case FunctionType::Kind::BareAuthCall:
 				case FunctionType::Kind::Transfer:
 				case FunctionType::Kind::ECRecover:
 				case FunctionType::Kind::SHA256:
@@ -2722,7 +2724,8 @@ void IRGeneratorForStatements::appendBareCall(
 	solAssert(
 		funKind == FunctionType::Kind::BareCall ||
 		funKind == FunctionType::Kind::BareDelegateCall ||
-		funKind == FunctionType::Kind::BareStaticCall, ""
+		funKind == FunctionType::Kind::BareStaticCall ||
+		funKind == FunctionType::Kind::BareAuthCall, ""
 	);
 
 	solAssert(!_functionCall.annotation().tryCall);
@@ -2735,13 +2738,23 @@ void IRGeneratorForStatements::appendBareCall(
 			let <length> := mload(<arg>)
 		</needsEncoding>
 
-		let <success> := <call>(<gas>, <address>, <?+value> <value>, </+value> <pos>, <length>, 0, 0)
+		let <success> := <call>(<gas>, <address>, <?+value> <value>, </+value> <?+valueExt> <valueExt>, </+valueExt> <pos>, <length>, 0, 0)
 		let <returndataVar> := <extractReturndataFunction>()
 	)");
 
 	templ("allocateUnbounded", m_utils.allocateUnboundedFunction());
 	templ("pos", m_context.newYulVariable());
 	templ("length", m_context.newYulVariable());
+
+	if (funKind == FunctionType::Kind::BareAuthCall)
+	{
+		// Currently, in the EIP-3074 spec, `valueExt` is always 0 for `AUTHCALL`.
+		templ("valueExt", "0");
+	}
+	else
+	{
+		templ("valueExt", "");
+	}
 
 	templ("arg", IRVariable(*_arguments.front()).commaSeparatedList());
 	Type const& argType = type(*_arguments.front());
@@ -2760,10 +2773,15 @@ void IRGeneratorForStatements::appendBareCall(
 
 	templ("address", IRVariable(_functionCall.expression()).part("address").name());
 
-	if (funKind == FunctionType::Kind::BareCall)
+	if (funKind == FunctionType::Kind::BareCall || funKind == FunctionType::Kind::BareAuthCall)
 	{
+		// Both `CALL` & `AUTHCALL` have a `value` field
 		templ("value", funType.valueSet() ? IRVariable(_functionCall.expression()).part("value").name() : "0");
-		templ("call", "call");
+
+		if (funKind == FunctionType::Kind::BareCall)
+			templ("call", "call");
+		else
+			templ("call", "authcall");
 	}
 	else
 	{

@@ -162,7 +162,7 @@ private:
 		std::vector<ASTPointer<Expression const>> const& _arguments
 	);
 
-	/// Appends code for .call / .delegatecall / .staticcall.
+	/// Appends code for .call / .delegatecall / .staticcall / .authcall.
 	/// All involved expressions have already been visited.
 	void appendBareCall(
 		FunctionCall const& _functionCall,

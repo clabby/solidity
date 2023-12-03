@@ -104,10 +104,22 @@ std::vector<SemanticInformation::Operation> SemanticInformation::readWriteOperat
 		op.lengthParameter = 2;
 		return {op};
 	}
+	case Instruction::AUTH:
+	{
+		assertThrow(memory(_instruction) == Effect::Read, OptimizerException, "");
+		assertThrow(storage(_instruction) == Effect::None, OptimizerException, "");
+		Operation op;
+		op.effect = memory(_instruction);
+		op.location = Location::Memory;
+		op.startParameter = 1;
+		op.lengthParameter = 2;
+		return {op};
+	}
 	case Instruction::STATICCALL:
 	case Instruction::CALL:
 	case Instruction::CALLCODE:
 	case Instruction::DELEGATECALL:
+	case Instruction::AUTHCALL:
 	{
 		size_t paramCount = static_cast<size_t>(instructionInfo(_instruction, langutil::EVMVersion()).args);
 		std::vector<Operation> operations{

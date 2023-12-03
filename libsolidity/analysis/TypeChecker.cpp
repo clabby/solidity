@@ -1453,7 +1453,8 @@ void TypeChecker::endVisit(ExpressionStatement const& _statement)
 				kind == FunctionType::Kind::BareCall ||
 				kind == FunctionType::Kind::BareCallCode ||
 				kind == FunctionType::Kind::BareDelegateCall ||
-				kind == FunctionType::Kind::BareStaticCall
+				kind == FunctionType::Kind::BareStaticCall ||
+				kind == FunctionType::Kind::BareAuthCall
 			)
 				m_errorReporter.warning(9302_error, _statement.location(), "Return value of low-level calls not used.");
 			else if (kind == FunctionType::Kind::Send)
@@ -2543,7 +2544,8 @@ void TypeChecker::typeCheckFunctionGeneralChecks(
 				_functionType->kind() == FunctionType::Kind::BareCall ||
 				_functionType->kind() == FunctionType::Kind::BareCallCode ||
 				_functionType->kind() == FunctionType::Kind::BareDelegateCall ||
-				_functionType->kind() == FunctionType::Kind::BareStaticCall
+				_functionType->kind() == FunctionType::Kind::BareStaticCall ||
+				_functionType->kind() == FunctionType::Kind::BareAuthCall
 			)
 			{
 				solAssert(!isVariadic, "");
@@ -2672,7 +2674,8 @@ void TypeChecker::typeCheckFunctionGeneralChecks(
 					_functionType->kind() == FunctionType::Kind::BareCall ||
 					_functionType->kind() == FunctionType::Kind::BareCallCode ||
 					_functionType->kind() == FunctionType::Kind::BareDelegateCall ||
-					_functionType->kind() == FunctionType::Kind::BareStaticCall
+					_functionType->kind() == FunctionType::Kind::BareStaticCall ||
+					_functionType->kind() == FunctionType::Kind::BareAuthCall
 				)
 					return {
 						8051_error,
@@ -2967,7 +2970,8 @@ bool TypeChecker::visit(FunctionCallOptions const& _functionCallOptions)
 		kind != FunctionType::Kind::BareCall &&
 		kind != FunctionType::Kind::BareCallCode &&
 		kind != FunctionType::Kind::BareDelegateCall &&
-		kind != FunctionType::Kind::BareStaticCall
+		kind != FunctionType::Kind::BareStaticCall &&
+		kind != FunctionType::Kind::BareAuthCall
 	)
 	{
 		m_errorReporter.fatalTypeError(

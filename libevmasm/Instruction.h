@@ -183,6 +183,8 @@ enum class Instruction: uint8_t
 	RETURN,				///< halt execution returning output data
 	DELEGATECALL,		///< like CALLCODE but keeps caller's value and sender
 	CREATE2 = 0xf5,		///< create new account with associated code at address `sha3(0xff + sender + salt + init code) % 2**160`
+	AUTH = 0xf6,        ///< authenticate an authorized account for the `AUTHCALL` instruction
+	AUTHCALL = 0xf7,    ///< message-call into an account with authentication for acting as an EOA
 	STATICCALL = 0xfa,	///< like CALL but disallow state modifications
 
 	REVERT = 0xfd,		///< halt execution, revert state and return output data

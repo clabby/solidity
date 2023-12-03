@@ -31,7 +31,8 @@ ReturnInfo::ReturnInfo(EVMVersion const& _evmVersion, FunctionType const& _funct
 	bool const returnSuccessConditionAndReturndata =
 		funKind == FunctionType::Kind::BareCall ||
 		funKind == FunctionType::Kind::BareDelegateCall ||
-		funKind == FunctionType::Kind::BareStaticCall;
+		funKind == FunctionType::Kind::BareStaticCall ||
+		funKind == FunctionType::Kind::BareAuthCall;
 
 	if (!returnSuccessConditionAndReturndata)
 	{

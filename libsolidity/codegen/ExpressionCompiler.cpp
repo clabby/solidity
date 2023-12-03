@@ -727,6 +727,7 @@ bool ExpressionCompiler::visit(FunctionCall const& _functionCall)
 		case FunctionType::Kind::BareCall:
 		case FunctionType::Kind::BareDelegateCall:
 		case FunctionType::Kind::BareStaticCall:
+		case FunctionType::Kind::BareAuthCall:
 			solAssert(!_functionCall.annotation().tryCall, "");
 			[[fallthrough]];
 		case FunctionType::Kind::External:
@@ -1623,6 +1624,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 					case FunctionType::Kind::BareCallCode:
 					case FunctionType::Kind::BareDelegateCall:
 					case FunctionType::Kind::BareStaticCall:
+					case FunctionType::Kind::BareAuthCall:
 					case FunctionType::Kind::Transfer:
 					case FunctionType::Kind::ECRecover:
 					case FunctionType::Kind::SHA256:
@@ -1826,7 +1828,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 				true
 			);
 		}
-		else if ((std::set<std::string>{"call", "callcode", "delegatecall", "staticcall"}).count(member))
+		else if ((std::set<std::string>{"call", "callcode", "delegatecall", "staticcall", "authcall"}).count(member))
 			utils().convertType(
 				*_memberAccess.expression().annotation().type,
 				*TypeProvider::address(),
@@ -2652,7 +2654,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 
 	solAssert(funKind != FunctionType::Kind::BareCallCode, "Callcode has been removed.");
 
-	bool returnSuccessConditionAndReturndata = funKind == FunctionType::Kind::BareCall || funKind == FunctionType::Kind::BareDelegateCall || funKind == FunctionType::Kind::BareStaticCall;
+	bool returnSuccessConditionAndReturndata = funKind == FunctionType::Kind::BareCall || funKind == FunctionType::Kind::BareDelegateCall || funKind == FunctionType::Kind::BareStaticCall || funKind == FunctionType::Kind::BareAuthCall;
 	bool isDelegateCall = funKind == FunctionType::Kind::BareDelegateCall || funKind == FunctionType::Kind::DelegateCall;
 	bool useStaticCall = funKind == FunctionType::Kind::BareStaticCall || (_functionType.stateMutability() <= StateMutability::View && m_context.evmVersion().hasStaticCall());
 
