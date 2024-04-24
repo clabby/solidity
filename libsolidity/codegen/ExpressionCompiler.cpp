@@ -2765,12 +2765,7 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		m_context << Instruction::DUP2;
 	}
 
-	// Append `0` to the stack for `AUTHCALL`'s `valueExt`.
-	// The EIP-3074 spec says that the `valueExt` parameter is always supposed to be `0`.
-	if (isAuthCall)
-		m_context << u256(0);
-
-	// CALL arguments: outSize, outOff, inSize, inOff, [valueExt (if AUTHCALL)] (already present up to here)
+	// CALL arguments: outSize, outOff, inSize, inOff, (already present up to here)
 	// [value,] addr, gas (stack top)
 	if (isDelegateCall)
 		solAssert(!_functionType.valueSet(), "Value set for delegatecall");

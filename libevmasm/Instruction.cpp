@@ -321,7 +321,7 @@ static std::map<Instruction, InstructionInfo> const c_instructionInfo =
 	{ Instruction::DELEGATECALL,	{ "DELEGATECALL",	0, 6, 1, true, Tier::Special } },
 	{ Instruction::STATICCALL,	{ "STATICCALL",		0, 6, 1, true, Tier::Special } },
 	{ Instruction::AUTH,        { "AUTH",			0, 3, 1, true, Tier::Special } },
-	{ Instruction::AUTHCALL,    { "AUTHCALL",		0, 8, 1, true, Tier::Special } },
+	{ Instruction::AUTHCALL,    { "AUTHCALL",		0, 7, 1, true, Tier::Special } },
 	{ Instruction::CREATE2,		{ "CREATE2",		0, 4, 1, true, Tier::Special } },
 	{ Instruction::REVERT,		{ "REVERT",		0, 2, 0, true, Tier::Zero } },
 	{ Instruction::INVALID,		{ "INVALID",		0, 0, 0, true, Tier::Zero } },

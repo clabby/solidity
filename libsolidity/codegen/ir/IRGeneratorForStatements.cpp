@@ -2738,23 +2738,13 @@ void IRGeneratorForStatements::appendBareCall(
 			let <length> := mload(<arg>)
 		</needsEncoding>
 
-		let <success> := <call>(<gas>, <address>, <?+value> <value>, </+value> <?+valueExt> <valueExt>, </+valueExt> <pos>, <length>, 0, 0)
+		let <success> := <call>(<gas>, <address>, <?+value> <value>, </+value> <pos>, <length>, 0, 0)
 		let <returndataVar> := <extractReturndataFunction>()
 	)");
 
 	templ("allocateUnbounded", m_utils.allocateUnboundedFunction());
 	templ("pos", m_context.newYulVariable());
 	templ("length", m_context.newYulVariable());
-
-	if (funKind == FunctionType::Kind::BareAuthCall)
-	{
-		// Currently, in the EIP-3074 spec, `valueExt` is always 0 for `AUTHCALL`.
-		templ("valueExt", "0");
-	}
-	else
-	{
-		templ("valueExt", "");
-	}
 
 	templ("arg", IRVariable(*_arguments.front()).commaSeparatedList());
 	Type const& argType = type(*_arguments.front());
